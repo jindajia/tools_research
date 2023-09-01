@@ -1,6 +1,29 @@
-import numpy as np
+import torch
 import matplotlib.pyplot as plt
+import numpy as np
 import math
+
+
+def read_pt_to_tensor(pth_file_path):
+    # Load the tensor data from the .pt file
+    tensor_list = torch.load(pth_file_path, map_location=torch.device('cpu'))
+    tensor_data = tensor_list[0]
+    #
+    # if tensor_data.dtype == torch.bfloat16:
+    #     tensor_data = tensor_data.to(torch.float32)
+    return tensor_data
+
+
+def save_tensor_to_disk(tensor, savename):
+    torch.save(tensor, savename)
+
+
+def draw_tensor_histogram(tensor):
+    plt.hist(tensor.numpy(), bins=128)
+    plt.title("Tensor Histogram")
+    plt.xlabel("Value")
+    plt.ylabel("Frequency")
+    plt.show()
 
 
 def calculate_entropy(freq):
@@ -38,30 +61,4 @@ def extract_bits_and_plot(data, dtype, shift_amounts, masks, num_possible_values
         plt.title(title)
         plt.show()
 
-    # Compute entropy
-    ent = calculate_entropy(freq)
-    print(f"Entropy: {ent}")
-
-def test():
-
-    # Read binary float16 data from file
-    with open("/Users/jindajia/Downloads/hurr_float16", "rb") as f:
-        data = np.fromfile(f, dtype=np.float16)
-
-    # Convert float16 data to uint16
-    data_uint16 = np.frombuffer(data, dtype=np.uint16)
-
-    # For 8 bits, just take the top 8 bits (after shifting down 8 positions)
-    extract_bits_and_plot(data, np.uint16, [8], [0xFF], [256], False)
-
-    # # For 5 bits, take bits 10 to 14 (after shifting down 10 positions)
-    # extract_bits_and_plot(data, np.uint16, [10], [0x1F], [256], False)
-
-    # For all 8 bits
-    extract_bits_and_plot(
-        data, np.uint32,
-        [0, 8],
-        [0xFF, 0xFF],
-        256,
-        False,
-    )
+    return calculate_entropy(freq)
