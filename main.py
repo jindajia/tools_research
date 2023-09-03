@@ -1,3 +1,4 @@
+import numpy
 
 from tool_function import *
 from binary_analysis import *
@@ -108,22 +109,20 @@ def save_tensor():
             path = abs_path + '/grads/' + grad + '/' + rank + '.pt'
             tensor = read_pt_to_tensor(path)
             np_data = tensor.to(torch.float32).numpy()
-            tensor = torch.from_numpy(np_data)
-            print(tensor.dtype)
-            save_tensor_to_disk(tensor, 'data_bin/' + grad+rank+'.bin')
+            save_array_to_bin(np_data, 'data_bin/grads/' + grad+'_rank_'+rank)
     for table, parm in enumerate(params_list):
         for iter, rank in enumerate(rank_list_withoutSuffix):
             path = abs_path + '/params/' + parm + '/' + rank + '.pt'
             tensor = read_pt_to_tensor(path)
-            np_data = tensor.to(torch.float32).numpy()
-            tensor = torch.from_numpy(np_data)
-            tensor = tensor.to(torch.bfloat16)
-            print(tensor.dtype)
-            save_tensor_to_disk(tensor, 'data_bin/' + parm+rank+'.bin')
+            tensor = tensor.to(torch.float32)
+            save_bfloat16_to_binary(tensor.numpy(), 'data_bin/params/' + parm+'_rank_'+rank)
 def main():
     # draw_bitmap_heatmap_histogram()
     # cal_bit_ratio(8)
-    save_tensor()
+    # save_tensor()
+    data = load_array_from_binary('/Users/jindajia/PycharmProjects/tools_research/data_bin/grads/grads_iter_001000000', numpy.float32)
+    print(data.dtype, data.shape)
+
 
 if __name__ == '__main__':
     main()

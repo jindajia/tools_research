@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import jax.numpy as jnp
 
 
 def read_pt_to_tensor(pth_file_path):
@@ -13,11 +14,24 @@ def read_pt_to_tensor(pth_file_path):
     #     tensor_data = tensor_data.to(torch.float32)
     return tensor_data
 
+def save_array_to_bin(arr, filename):
+    arr.tofile(filename)
 
-def save_tensor_to_disk(tensor, savename):
-    torch.save(tensor, savename)
 
+def save_bfloat16_to_binary(arr, filename):
+    float32_array = arr.astype(np.float32)
+    int32_array = float32_array.view(np.int32)
+    int16_array = (int32_array >> 16).astype(np.int16)
+    int16_array.tofile(filename)
 
+def load_array_from_binary(filename, datatype):
+    return np.fromfile(filename, dtype=datatype)
+
+def load_bfloat16_array_from_binary(filename):
+    int16_array = np.fromfile(filename, dtype=np.int16)
+    int32_array = (int16_array.astype(np.int32) << 16)
+    float32_array = int32_array.view(np.float32)
+    return float32_array
 def draw_tensor_histogram(tensor):
     plt.hist(tensor.numpy(), bins=128)
     plt.title("Tensor Histogram")
